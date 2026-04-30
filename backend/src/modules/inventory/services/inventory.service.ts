@@ -1,7 +1,7 @@
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InventoryRepository } from '../repositories/inventory.repository';
 import { SupabaseService } from '../../../shared/supabase.service';
-import { SubscriptionTier } from '../../core/auth/tier.enum';
-import { ForbiddenException } from '@nestjs/common';
+import { SubscriptionTier } from '../../../core/auth/tier.enum';
 
 @Injectable()
 export class InventoryService {
@@ -101,7 +101,7 @@ export class InventoryService {
     const { p_name, p_selling_price, p_recipe, p_barcode } = data;
     const tenantId = user.tenant_id;
 
-    if (user.tier === SubscriptionTier.FREE) {
+    if (user.tier === SubscriptionTier.STARTER) {
       const { count, error: countError } = await client
         .from('products')
         .select('*', { count: 'exact', head: true })

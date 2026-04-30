@@ -31,13 +31,14 @@ export default function PromosPage() {
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
 
-      // Seharusnya pakai backend API tapi untuk demo ini kita fetch list dulu
-      const { data, error } = await supabase
-        .from('promotions')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/promotions`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       
-      if (error) throw error;
+      if (!response.ok) throw new Error('Gagal mengambil data promo');
+      const data = await response.json();
       setPromos(data || []);
     } catch (error) {
       console.error('Error fetching promos:', error);

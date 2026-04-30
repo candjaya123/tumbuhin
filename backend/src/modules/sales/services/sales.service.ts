@@ -3,10 +3,11 @@ import { InventoryRepository } from '../../inventory/repositories/inventory.repo
 import { AccountingService } from '../../accounting/services/accounting.service';
 import { JournalEntry } from '../../accounting/domain/journal.domain';
 import { ProcessSaleDto } from '../controllers/process-sale.dto';
+import { AccountingRepository } from '../../accounting/repositories/accounting.repository';
 import { UnitOfWork } from '../../../core/database/unit-of-work';
 import { EventBusService } from '../../../core/events/event-bus.service';
 import { SupabaseService } from '../../../shared/supabase.service';
-import { SubscriptionTier } from '../../core/auth/tier.enum';
+import { SubscriptionTier } from '../../../core/auth/tier.enum';
 import { ForbiddenException } from '@nestjs/common';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class SalesService {
   constructor(
     private readonly inventoryRepository: InventoryRepository,
     private readonly accountingService: AccountingService,
+    private readonly accountingRepository: AccountingRepository,
     private readonly unitOfWork: UnitOfWork,
     private readonly eventBus: EventBusService,
     private readonly supabaseService: SupabaseService,
@@ -149,7 +151,12 @@ export class SalesService {
           total_price: item.price * item.quantity,
         }));
         
-        await dbClient.from('sale_items').insert(saleItems);
+        for (const s of saleItems) {
+          await dbClient.query(
+            'INSERT INTO sale_items (transaction_id, product_id, quantity, price, total_price) VALUES ($1, $2, $3, $4, $5)',
+            [s.transaction_id, s.product_id, s.quantity, s.price, s.total_price]
+          );
+        }
 
         // 6. Emit Domain Event
         await this.eventBus.emit({

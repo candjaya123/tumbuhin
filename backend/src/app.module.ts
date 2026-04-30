@@ -23,6 +23,7 @@ import { OrderModule } from './modules/order/order.module';
 import { PromoModule } from './modules/promo/promo.module';
 import { InsightModule } from './modules/insight/insight.module';
 import { ProcurementModule } from './modules/procurement/procurement.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 import { LoggerModule } from 'nestjs-pino';
 import { TraceIdMiddleware } from './core/middlewares/trace.middleware';
@@ -70,6 +71,7 @@ import { TraceIdMiddleware } from './core/middlewares/trace.middleware';
     PromoModule,
     InsightModule,
     ProcurementModule,
+    InventoryModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],

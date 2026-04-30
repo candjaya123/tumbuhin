@@ -1,7 +1,7 @@
 export enum SubscriptionTier {
-  STARTER = 'starter',
+  STARTER = 'free',
   BUSINESS = 'business',
-  PRO = 'pro',
+  PRO = 'ai',
 }
 
 export enum SubscriptionStatus {

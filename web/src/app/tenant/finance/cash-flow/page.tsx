@@ -39,7 +39,7 @@ export default function CashFlowPage() {
           description: l.journal_entries?.description || "Transaksi Kas",
           debit: l.debit,
           credit: l.credit,
-          accounts: { name: l.chart_of_accounts?.name }
+          accounts: { name: l.accounts?.name || l.chart_of_accounts?.name }
         }));
 
         setCashFlow(transformed);

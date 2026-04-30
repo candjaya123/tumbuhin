@@ -33,7 +33,7 @@ export class FinanceController {
         debit,
         credit,
         created_at,
-        chart_of_accounts (
+        accounts:chart_of_accounts (
           name,
           code,
           type

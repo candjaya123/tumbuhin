@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Put, Param, Body, UseGuards, Request } from '@nestjs/common';
 import { SupabaseService } from '../../../shared/supabase.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 

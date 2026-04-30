@@ -89,6 +89,6 @@ export class OnboardingService {
     }
 
     this.logger.log(`Onboarding setup (Deterministic) completed successfully for tenant: ${tenantId}`);
-    return { success: true, template_used: industryKey };
+    return { success: true, template_used: 'standard' };
   }
 }

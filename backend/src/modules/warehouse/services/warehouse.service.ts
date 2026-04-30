@@ -75,7 +75,7 @@ export class WarehouseService {
 
     if (transferError) throw transferError;
 
-    const transferItems = items.map(item => ({
+    const transferItems = items.map((item: any) => ({
       transfer_id: transfer.id,
       product_id: item.product_id,
       quantity: item.quantity
@@ -108,7 +108,7 @@ export class WarehouseService {
 
     if (opnameError) throw opnameError;
 
-    const opnameItems = items.map(item => ({
+    const opnameItems = items.map((item: any) => ({
       opname_id: opname.id,
       product_id: item.product_id,
       system_quantity: item.system_quantity,
