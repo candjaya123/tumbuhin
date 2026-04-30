@@ -1,170 +1,178 @@
-# 🚀 Tumbuhin - SaaS POS & Intelligent Accounting Platform
+# 🚀 Tumbuhin - SaaS ERP & Intelligent Accounting Platform
 
-Tumbuhin adalah platform terpadu (SaaS) yang dirancang untuk mendigitalkan dan mengotomatiskan operasional bisnis UMKM, mulai dari Point of Sales (POS), manajemen inventaris, hingga pencatatan akuntansi (*double-entry bookkeeping*) yang didukung oleh kecerdasan buatan (AI).
+![Tumbuhin Banner](https://via.placeholder.com/1200x400/FDB827/ffffff?text=Tumbuhin+ERP+Platform)
 
-Visi utama dari Tumbuhin adalah **"Upload kwitansi → Otomatis jadi jurnal akuntansi"** dengan fitur *Business Health Score* dan Chart of Accounts (COA) yang adaptif berdasarkan profil bisnis (Retail, Jasa, Manufaktur).
+Tumbuhin adalah platform **SaaS Enterprise Resource Planning (ERP)** terpadu yang dirancang untuk mendigitalkan dan mengotomatiskan operasional bisnis UMKM, mulai dari Point of Sales (POS), manajemen inventaris multi-gudang, pengadaan (procurement), hingga pencatatan akuntansi (*double-entry bookkeeping*) yang didukung oleh kecerdasan buatan (AI).
+
+Visi utama dari Tumbuhin adalah **"Upload kwitansi → Otomatis jadi jurnal akuntansi"** dengan fitur *Business Health Score* dan sistem operasional yang sepenuhnya tersentralisasi dan deterministik.
 
 ---
 
-## 🏗️ Arsitektur Sistem (Modular Monolith)
+## 🏗️ Arsitektur Sistem (Deterministic Modular Monolith)
 
-Tumbuhin menggunakan arsitektur **Modular Monolith** dengan pola **Clean Architecture** untuk memastikan sistem *future-proof*, mudah di- *scale*, dan terhindar dari *vendor lock-in*.
+Tumbuhin menggunakan arsitektur **Modular Monolith** dengan pendekatan **Clean Architecture** dan logika inti berbasis **Deterministik**. Arsitektur ini memastikan sistem *future-proof*, mudah di-*scale*, dan bebas dari risiko halusinasi AI pada transaksi finansial kritis.
 
-*   **📱 Mobile App (POS & Scanner)**: React Native (Expo) + NativeWind
 *   **💻 Web Dashboard (Admin & Tenant)**: Next.js 14 (App Router) + Tailwind CSS + Shadcn UI
-*   **⚙️ Backend API**: NestJS (TypeScript)
-*   **🗄️ Database & Auth**: Supabase (PostgreSQL + JWT Auth + RLS)
-*   **🧠 AI Engine**: Google Gemini 1.5 Flash (untuk OCR & Categorization)
-*   **💳 Payment Gateway**: Midtrans (untuk penarikan dana/Withdrawal)
+*   **📱 Mobile App (POS & Scanner)**: React Native (Expo) + NativeWind + Zustand
+*   **⚙️ Backend API**: NestJS (TypeScript) + BullMQ + PostgreSQL Unit of Work
+*   **🗄️ Database & Auth**: Supabase (PostgreSQL + JWT Auth + Row Level Security)
+*   **🧠 AI Engine**: Google Gemini 1.5 Flash (Read-Only Insights & OCR)
+*   **💳 Payment Gateway**: Midtrans (Withdrawal & Payouts)
 
 ---
 
-## 📂 Struktur Direktori Proyek
+## 📂 Struktur Direktori Utama
 
-Proyek ini menggunakan struktur monorepo-style (walaupun tanpa workspace manager khusus) yang terbagi menjadi tiga pilar utama:
+Proyek ini menggunakan struktur monorepo yang memisahkan tanggung jawab (Seperation of Concerns) menjadi 3 pilar utama:
 
 ```text
 tumbuhin/
-├── app/               # 📱 React Native (Expo) - Aplikasi Mobile POS
-│   ├── src/           # Source code (API, Components, Screens)
-│   ├── supabase/      # Supabase local setup & SQL Migrations (Master DB Schema)
-│   └── app.json       # Expo config
-│
-├── backend/           # ⚙️ NestJS - Sentralisasi Business Logic & AI
+├── backend/           # ⚙️ NestJS - Sentralisasi Logika Bisnis & Transaksi (Source of Truth)
 │   ├── src/
-│   │   ├── core/      # Core infrastructure (AI Interfaces, Auth Strategy, Exceptions)
-│   │   ├── modules/   # Feature Modules (Accounting, Sales, Inventory, Business Profile)
-│   │   └── shared/    # Shared Services (Supabase Client)
+│   │   ├── core/      # Core infrastructure (Auth, Guards, Interceptors, Event Bus)
+│   │   ├── modules/   # 14 Feature Modules (Sales, Accounting, Inventory, AI, dll)
+│   │   └── shared/    # Shared Services (Supabase Client, External APIs)
 │   └── package.json
 │
-└── web/               # 💻 Next.js - Web Dashboard (Superadmin & Tenant)
+├── web/               # 💻 Next.js - Web Dashboard (Management & Reporting)
+│   ├── src/
+│   │   ├── app/       # Next.js App Router (/(auth), /admin, /tenant)
+│   │   ├── components/# Reusable UI Components (Shadcn, Custom POS/Finance widgets)
+│   │   └── lib/       # API Clients (Fetch logic to NestJS Backend)
+│   └── package.json
+│
+└── app/               # 📱 React Native (Expo) - Aplikasi Mobile POS & Dashboard
     ├── src/
-    │   ├── app/       # Next.js App Router (/(auth), /admin, /tenant)
-    │   ├── components/# Reusable UI Components
-    │   └── lib/       # Utility functions & Supabase clients
+    │   ├── api/       # API Integration Layer
+    │   ├── features/  # Feature-based components (POS, Inventory, Reports)
+    │   └── store/     # Zustand state management
+    ├── app.json       # Expo configuration
     └── package.json
 ```
 
 ---
 
-## 🛠️ Prasyarat (Prerequisites)
+## 🛡️ Fitur Utama & Tier Sistem
 
-Sebelum menjalankan proyek ini, pastikan mesin Anda telah terinstal perangkat lunak berikut:
+Sistem ini menggunakan mekanisme Role-Based Access Control (RBAC) dan Subscription Tiers untuk membatasi akses fitur.
 
-1.  **Node.js** (versi 18.x atau 20.x disarankan)
-2.  **npm** (atau Yarn/pnpm)
-3.  **Supabase CLI** (untuk menjalankan migrasi & lokal DB)
-4.  **Expo CLI** (`npm install -g eas-cli`)
-5.  Akun **Google AI Studio** (untuk mendapatkan *API Key* Gemini)
+### **3-Tier Subscription Model**
+1. **Starter (Free)**: POS dasar, 1 gudang, maksimal 500 transaksi/bulan.
+2. **Business**: Multi-gudang, Manajemen Promo Otomatis, Manajemen Staf (RBAC), Laporan Laba Rugi, AI Chat Analytics.
+3. **Pro (ERP)**: Pengadaan Otomatis (Autopilot Procurement), Neraca Keuangan (Balance Sheet), Arus Kas (Cash Flow), AI OCR Scanner.
+
+### **Core Modules**
+*   **Deterministic POS**: Sistem kasir yang secara otomatis memotong stok berdasarkan resep (BOM) dan membuat jurnal ganda (Debit/Kredit) secara real-time dan transaksional.
+*   **Double-Entry Accounting**: Menggunakan `JournalEntry.validateBalance()` untuk memastikan keakuratan akuntansi 100%. Laporan dihasilkan otomatis melalui `Materialized Views` yang di-refresh berkala.
+*   **Autopilot Procurement**: Cronjob NestJS mendeteksi stok yang menipis dan membuat draf Purchase Order secara otomatis.
+*   **CFO Virtual (AI)**: Asisten cerdas yang menganalisis agregasi keuangan (`business_memory`) untuk memberikan saran strategi tanpa akses modifikasi data.
 
 ---
 
-## 🚀 Cara Menjalankan Proyek Secara Lokal
+## 🛠️ Prasyarat (Prerequisites)
 
-Ikuti langkah-langkah di bawah ini secara berurutan untuk menjalankan Tumbuhin di mesin lokal Anda.
+Pastikan mesin Anda telah menginstal:
+1.  **Node.js** (v18.x atau v20.x direkomendasikan)
+2.  **npm** (atau Yarn/pnpm)
+3.  **Supabase CLI** (Opsional untuk testing lokal)
+4.  **Expo CLI** (`npm install -g eas-cli`)
+5.  Akun **Supabase** (Proyek cloud) & **Google AI Studio** (Gemini API Key)
+6.  **Redis** (Untuk BullMQ Message Queue di Backend)
 
-### 1. Setup Database (Supabase)
+---
 
-Proyek ini mengandalkan Supabase. Anda dapat menggunakan Supabase lokal (Docker) atau menggunakan *project* Supabase di *cloud*.
+## 🚀 Panduan Instalasi & Menjalankan Proyek
 
-```bash
-# Masuk ke direktori app (tempat konfigurasi Supabase berada)
-cd app/supabase
+Lakukan langkah-langkah berikut secara berurutan:
 
-# Jalankan semua file SQL di dalam folder migrations/ secara berurutan pada database Supabase Anda.
-# File migrasi terakhir (20260427000001 & 20260427000002) sangat penting untuk arsitektur NestJS.
-```
-
-### 2. Menjalankan Backend API (NestJS)
-
-Backend bertindak sebagai *Single Source of Truth* untuk semua *business logic* yang kompleks (HPP, Jurnal, AI).
+### 1. Setup Backend API (NestJS)
+Backend **wajib** dijalankan pertama kali karena Web dan Mobile bergantung penuh pada REST API ini.
 
 ```bash
 cd backend
-
-# Install dependensi
 npm install
-
-# Buat file .env
 cp .env.example .env
 ```
 
 **Konfigurasi `.env` Backend:**
 ```env
-SUPABASE_URL="https://[PROJECT-ID].supabase.co"
-SUPABASE_SERVICE_ROLE_KEY="eyJh..." # Gunakan Service Role Key untuk operasi backend!
-SUPABASE_JWT_SECRET="secret-jwt-dari-supabase"
-GEMINI_API_KEY="AIzaSy..." # Dapatkan dari Google AI Studio
+SUPABASE_URL="https://[YOUR_PROJECT_ID].supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="eyJh..." # Wajib Service Role Key
+SUPABASE_JWT_SECRET="your-jwt-secret"
+GEMINI_API_KEY="AIzaSy..." 
+REDIS_HOST="localhost"
+REDIS_PORT="6379"
 ```
 
-**Jalankan Backend:**
+**Jalankan Server:**
 ```bash
 npm run start:dev
-# Backend akan berjalan di http://localhost:3000
+# Backend beroperasi di http://localhost:3000
 ```
 
-### 3. Menjalankan Web Dashboard (Next.js)
+### 2. Setup Web Dashboard (Next.js)
 
 ```bash
 cd web
-
-# Install dependensi
 npm install
-
-# Buat file .env.local
 cp .env.example .env.local
 ```
 
 **Konfigurasi `.env.local` Web:**
 ```env
-NEXT_PUBLIC_SUPABASE_URL="https://[PROJECT-ID].supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJh..."
+NEXT_PUBLIC_SUPABASE_URL="https://[YOUR_PROJECT_ID].supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="eyJh..." # Anon Key
 NEXT_PUBLIC_BACKEND_URL="http://localhost:3000"
 ```
 
 **Jalankan Web:**
 ```bash
 npm run dev
-# Web berjalan di http://localhost:3001
+# Web beroperasi di http://localhost:3001
 ```
 
-### 4. Menjalankan Mobile App (React Native/Expo)
+### 3. Setup Mobile App (Expo)
 
 ```bash
 cd app
-
-# Install dependensi
 npm install
+# Konfigurasi di file .env
+```
 
-# Konfigurasi .env (Pastikan ada)
-# EXPO_PUBLIC_SUPABASE_URL="..."
-# EXPO_PUBLIC_SUPABASE_ANON_KEY="..."
-# EXPO_PUBLIC_BACKEND_URL="http://[IP-LOCAL-PC]:3000" # Gunakan IP lokal jika ditest di HP fisik
+**Konfigurasi `.env` Mobile:**
+```env
+EXPO_PUBLIC_SUPABASE_URL="https://[YOUR_PROJECT_ID].supabase.co"
+EXPO_PUBLIC_SUPABASE_ANON_KEY="eyJh..."
+EXPO_PUBLIC_BACKEND_URL="http://[IP-LOKAL-ANDA]:3000" # Wajib IP Lokal (misal 192.168.1.x) jika testing di HP fisik
+```
 
-# Jalankan aplikasi
+**Jalankan Mobile:**
+```bash
 npx expo start
 ```
 
 ---
 
-## 🧠 Konsep Kunci Sistem (PENTING!)
+## 🧠 Aturan Pengembangan (PENTING!)
 
-Agar tidak merusak arsitektur yang sudah dibangun, perhatikan aturan utama berikut:
+Bagi pengembang yang akan berkontribusi, wajib mematuhi aturan berikut untuk menjaga stabilitas dan keamanan arsitektur:
 
-1.  **No Database Logic**: JANGAN PERNAH menambahkan *business logic* (seperti potong stok, hitung HPP, atau insert jurnal ganda) menggunakan **PostgreSQL RPC atau Triggers** lagi. Semua logika **WAJIB** ditulis di lapisan `Service` pada backend **NestJS**.
-2.  **Double-Entry Validator**: Semua entri jurnal akuntansi diawasi oleh `JournalEntry.validateBalance()` di layer *Domain* NestJS. Pastikan total Debit selalu sama dengan total Kredit.
-3.  **Human-in-the-Loop AI**: OCR (Gemini) tidak langsung memposting jurnal ke buku besar. Hasil OCR akan masuk ke *Draft Transaction Layer* (`is_draft = true`). Pengguna (manusia) wajib melakukan validasi akhir di aplikasi sebelum jurnal tersebut diposting secara permanen.
-4.  **Shadow Deployment**: Jika Anda sedang memigrasikan fitur *legacy* dari RPC ke API NestJS, pastikan rute API sudah dites secara paralel sebelum fitur RPC di aplikasi *Mobile/Web* dimatikan.
-
----
-
-## 🗺️ Roadmap & Hal yang Belum Selesai
-
-Jika Anda pengembang baru yang mengambil alih proyek ini, berikut adalah daftar tugas selanjutnya:
-
-*   [ ] **Sinkronisasi UI Web**: Implementasikan halaman fungsional untuk `/tenant/pos` dan `/tenant/inventory` di *Web Dashboard* yang saat ini masih berupa *placeholder*.
-*   [ ] **Laporan Akuntansi Lengkap**: Bangun modul pelaporan di NestJS untuk men-*generate* Laporan Laba Rugi, Neraca, dan Arus Kas berdasarkan tabel `journal_entries`.
-*   [ ] **AI Business Health Score**: Implementasikan prompt AI generatif yang membaca ringkasan Laba Rugi dan memberikan rekomendasi strategis ke pengguna.
+1.  **API Centralization**: Client (Web & Mobile) **TIDAK BOLEH** melakukan operasi penulisan (INSERT/UPDATE/DELETE) langsung ke Supabase (kecuali autentikasi dasar). Seluruh operasi CRUD dan logika bisnis **WAJIB** melalui REST API NestJS (`/api/v1/...`).
+2.  **Deterministic First**: Jangan menggunakan AI/LLM untuk menghitung stok, menentukan harga, atau menjurnal akuntansi. AI hanya bertindak sebagai *interface* (UX) untuk ekstraksi teks (OCR) dan merangkum insight.
+3.  **ACID Transactions**: Setiap transaksi POS yang memotong stok dan membuat jurnal **harus** dibungkus dalam `UnitOfWork.runInTransaction()` untuk mencegah data parsial jika terjadi kegagalan.
+4.  **Guards Pipeline**: Selalu gunakan dekorator keamanan berlapis pada rute Backend: `@UseGuards(JwtAuthGuard)`, `@RequireTier(SubscriptionTier.X)`, dan `@Roles(UserRole.X)`.
 
 ---
-*Dikompilasi untuk memastikan transisi *engineering* yang mulus menuju visi SaaS yang skalabel.* 🚀
+
+## 🧪 Testing
+
+Sistem ini dilengkapi dengan Master Test Case (lihat `test.md`). Untuk menjalankan tes lokal:
+
+```bash
+cd backend
+npm run test
+npm run test:e2e
+```
+
+---
+*Dibangun untuk merevolusi operasional UMKM Indonesia.* 🇮🇩
